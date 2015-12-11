@@ -31,7 +31,7 @@ post '/up' => sub {
     my $data_upload = $self->param('datei');
 
     if ($data_upload) {
-        $data_upload->move_to($data_dir . '/test.pdf')
+        $data_upload->move_to($data_dir . '/' . $data_upload->filename);
     }
 } => 'up';
 
