@@ -1,0 +1,3 @@
+data_dir: /tmp
+port: 8443
+encryption_key: 'This is not secure...'
