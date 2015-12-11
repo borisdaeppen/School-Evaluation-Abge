@@ -22,16 +22,20 @@ my $encryption_key = $config->{encryption_key};
 # setup mojo password
 app->secrets([$encryption_key]);
 
-get '/' => sub {
+any '/' => sub {
     my $self   = shift;
 } => 'root';
 
-post '/up' => sub {
+any '/up' => sub {
     my $self   = shift;
     my $data_upload = $self->param('datei');
 
     if ($data_upload) {
         $data_upload->move_to($data_dir . '/' . $data_upload->filename);
+    }
+    else {
+        # TODO
+        print "should redirect to root\n";
     }
 } => 'up';
 
