@@ -1,11 +1,47 @@
+#!/usr/bin/env perl
 use Mojolicious::Lite;
+use Mojo::Server::Daemon;
+
+use YAML::Tiny;
+
+# load config
+my $conf_file = '';
+if (-f 'abge.conf.yml') {
+    $conf_file = 'abge.conf.yml';
+}
+else {
+    $conf_file = '/etc/abge.conf.yml';
+}
+my $yaml = YAML::Tiny->read( $conf_file );
+my $config = $yaml->[0];
+
+my $data_dir       = $config->{data_dir};
+my $port           = $config->{port};
+my $encryption_key = $config->{encryption_key};
+
+# setup mojo password
+app->secrets([$encryption_key]);
 
 get '/' => sub {
-  my $c   = shift;
+    my $self   = shift;
 } => 'root';
 
+post '/up' => sub {
+    my $self   = shift;
+    my $data_upload = $self->param('datei');
+
+    if ($data_upload) {
+        $data_upload->move_to($data_dir . '/test.pdf')
+    }
+} => 'up';
+
 # Start the Mojolicious command system
-app->start;
+#app->start;
+my $daemon = Mojo::Server::Daemon->new(
+    app    => app,
+    listen => ["http://*:$port"]
+    );
+$daemon->run;
 
 __DATA__
 
@@ -71,6 +107,17 @@ a:active { color: #000000; text-decoration: none}
 % layout 'main';
  <section id="main">
   <article>
-    Fileupload
+   <form action="/up" method="post" enctype="multipart/form-data">
+    Datei hochladen: <input name="datei" type="file" size="50" accept="*/*">
+    <input type="submit" value="einsenden">
+   </form>
+  </article>
+ </section>
+
+@@ up.html.ep
+% layout 'main';
+ <section id="main">
+  <article>
+   Danke für die Einsendung
   </article>
  </section>
